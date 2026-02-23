@@ -3,131 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warrior AI TTS Studio</title>
+    <title>Vox AI Studio TTS</title> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
+            background-color: #050505; /* Ekdum dark black background */
             color: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 50px 20px;
+            padding: 20px;
+        }
+        #auth-section {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 20px;
         }
         h1 {
-            color: #ff9800;
-            text-shadow: 2px 2px 4px #000000;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 10px;
         }
         .studio-box {
-            background-color: #1e1e1e;
+            background-color: #111111; /* Darker box design */
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333; /* Premium look border */
             width: 100%;
             max-width: 600px;
         }
         textarea {
             width: 100%;
-            height: 150px;
-            background-color: #2d2d2d;
+            height: 200px;
+            background-color: #0a0a0a;
             color: #fff;
-            border: 1px solid #ff9800;
-            border-radius: 8px;
+            border: 1px solid #333;
+            border-radius: 10px;
             padding: 15px;
             font-size: 16px;
             margin-bottom: 20px;
             resize: none;
-            box-sizing: border-box;
+            outline: none;
         }
-        select, button {
-            width: 100%;
+        .main-btn {
+            background-color: #ffffff; /* White button like your photo */
+            color: #000000;
+            font-weight: bold;
             padding: 15px;
             font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border-radius: 10px;
+            width: 100%;
             cursor: pointer;
         }
-        select {
-            background-color: #2d2d2d;
-            color: white;
-            border: 1px solid #444;
-        }
-        button {
-            background-color: #ff9800;
-            color: #121212;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        button:hover {
-            background-color: #e68a00;
-            transform: scale(1.02);
-        }
+        .btn-google { background-color: #4285F4; color: white; padding: 8px 15px; border-radius: 5px; border: none; }
     </style>
 </head>
 <body>
 
-    <h1>🎙️ Warrior AI Studio</h1>
-    <p>Apni historical script yahan likhein aur awaaz sunein</p>
-
-    <div class="studio-box">
-        <textarea id="text-input">Veer Shiromani Maharana Pratap aur unke swamikbhakt ghode Chetak ki kahani sadiyon tak amar rahegi...</textarea>
-        
-        <select id="voice-select">
-            <option value="">Awaaz load ho rahi hai...</option>
-        </select>
-
-        <button onclick="speakText()">🔊 Awaaz Generate Karein</button>
-        <button onclick="stopText()" style="background-color: #f44336; color: white;">🛑 Rokein</button>
+    <div id="auth-section">
+        <span id="user-email" style="margin-right: 10px; font-size: 12px; color: #666;"></span>
+        <button id="login-btn" class="btn-google" onclick="googleLogin()">Google Login</button>
+        <button id="logout-btn" style="background:#f44336; color:white; display:none;" onclick="logout()">Logout</button>
     </div>
 
+    <h1>🎙️ Vox AI Studio TTS</h1> <p style="color: #666;">Professional AI Voice Generator</p>
+
+    <div class="studio-box">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-size: 14px; font-weight:bold;">✨ Text to Speech</span>
+            <span style="font-size: 12px; color:#666;">0 / 20000 CHARACTERS</span>
+        </div>
+        
+        <textarea id="text-input" placeholder="Type or paste your text here..."></textarea>
+        
+        <button class="main-btn" onclick="speakText()">VoxAI Frank (Premium)</button>
+    </div>
+
+    <script src="auth.js"></script>
     <script>
-        let synth = window.speechSynthesis;
-        let voiceSelect = document.getElementById('voice-select');
-        let voices = [];
-
-        function populateVoiceList() {
-            voices = synth.getVoices();
-            voiceSelect.innerHTML = '';
-            voices.forEach((voice, i) => {
-                let option = document.createElement('option');
-                option.textContent = voice.name + ' (' + voice.lang + ')';
-                option.setAttribute('data-lang', voice.lang);
-                option.setAttribute('data-name', voice.name);
-                voiceSelect.appendChild(option);
-            });
-        }
-
-        populateVoiceList();
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = populateVoiceList;
-        }
-
-        function speakText() {
-            if (synth.speaking) {
-                console.error('Pehle se bol raha hai...');
-                return;
-            }
-            let textInput = document.getElementById('text-input').value;
-            if (textInput !== '') {
-                let utterThis = new SpeechSynthesisUtterance(textInput);
-                let selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
-                for (let i = 0; i < voices.length; i++) {
-                    if (voices[i].name === selectedOption) {
-                        utterThis.voice = voices[i];
-                        break;
-                    }
-                }
-                utterThis.rate = 0.9; // Speed (thoda heavy/slow effect ke liye)
-                utterThis.pitch = 0.8; // Pitch
-                synth.speak(utterThis);
-            }
-        }
-
-        function stopText() {
-            synth.cancel();
-        }
+        // Purana speakText logic yahan rahega...
     </script>
-
 </body>
 </html>
