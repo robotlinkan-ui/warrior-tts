@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warrior AI TTS Studio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+        h1 {
+            color: #ff9800;
+            text-shadow: 2px 2px 4px #000000;
+        }
+        .studio-box {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 600px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #2d2d2d;
+            color: #fff;
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: none;
+            box-sizing: border-box;
+        }
+        select, button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        select {
+            background-color: #2d2d2d;
+            color: white;
+            border: 1px solid #444;
+        }
+        button {
+            background-color: #ff9800;
+            color: #121212;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #e68a00;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎙️ Warrior AI Studio</h1>
+    <p>Apni historical script yahan likhein aur awaaz sunein</p>
+
+    <div class="studio-box">
+        <textarea id="text-input">Veer Shiromani Maharana Pratap aur unke swamikbhakt ghode Chetak ki kahani sadiyon tak amar rahegi...</textarea>
+        
+        <select id="voice-select">
+            <option value="">Awaaz load ho rahi hai...</option>
+        </select>
+
+        <button onclick="speakText()">🔊 Awaaz Generate Karein</button>
+        <button onclick="stopText()" style="background-color: #f44336; color: white;">🛑 Rokein</button>
+    </div>
+
+    <script>
+        let synth = window.speechSynthesis;
+        let voiceSelect = document.getElementById('voice-select');
+        let voices = [];
+
+        function populateVoiceList() {
+            voices = synth.getVoices();
+            voiceSelect.innerHTML = '';
+            voices.forEach((voice, i) => {
+                let option = document.createElement('option');
+                option.textContent = voice.name + ' (' + voice.lang + ')';
+                option.setAttribute('data-lang', voice.lang);
+                option.setAttribute('data-name', voice.name);
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        populateVoiceList();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        function speakText() {
+            if (synth.speaking) {
+                console.error('Pehle se bol raha hai...');
+                return;
+            }
+            let textInput = document.getElementById('text-input').value;
+            if (textInput !== '') {
+                let utterThis = new SpeechSynthesisUtterance(textInput);
+                let selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+                for (let i = 0; i < voices.length; i++) {
+                    if (voices[i].name === selectedOption) {
+                        utterThis.voice = voices[i];
+                        break;
+                    }
+                }
+                utterThis.rate = 0.9; // Speed (thoda heavy/slow effect ke liye)
+                utterThis.pitch = 0.8; // Pitch
+                synth.speak(utterThis);
+            }
+        }
+
+        function stopText() {
+            synth.cancel();
+        }
+    </script>
+
+</body>
+</html>
