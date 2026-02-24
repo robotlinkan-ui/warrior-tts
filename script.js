@@ -1,7 +1,6 @@
-// Vox AI Studio - SECURE VERSION
-// Humne yahan se key hata di hai taaki Google warning na de.
-const GEMINI_API_KEY = ""; // Ise khali hi rehne dein
+const GEMINI_API_KEY = ""; // Security ke liye khali chhoda hai
 
+// WAV Generator (Isme koi badlav nahi hai)
 const createWavUrl = (base64, sampleRate = 24000) => {
     const binaryString = atob(base64);
     const len = binaryString.length;
@@ -36,27 +35,18 @@ const createWavUrl = (base64, sampleRate = 24000) => {
 };
 
 async function generateSpeech() {
-    const textInput = document.getElementById('text-input');
-    const text = textInput.value;
+    const text = document.getElementById('text-input').value;
     const button = document.querySelector('.main-btn');
-    
-    // YAHAN DHAYAN DEIN: Hum key ko Netlify se mangwayenge ya manual input se
-    const secureKey = GEMINI_API_KEY || prompt("Security ke liye, apni nayi Gemini API Key yahan dalein:");
+    const secureKey = GEMINI_API_KEY || prompt("Security ke liye, apni Gemini 3.1 Pro API Key dalein:");
 
-    if (!text.trim()) {
-        alert("Sachin bhai, pehle script toh likhiye!");
-        return;
-    }
-    if (!secureKey) {
-        alert("API Key ke bina awaaz nahi ban sakti!");
-        return;
-    }
+    if (!text.trim() || !secureKey) return;
 
-    button.innerText = "🎙️ AI Voice Processing...";
+    button.innerText = "🎙️ VoxAI Pro Processing...";
     button.disabled = true;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${secureKey}`, {
+        // UPDATE: Ab hum 1.5-Pro engine use kar rahe hain (Latest 3.1 Preview)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${secureKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -71,25 +61,20 @@ async function generateSpeech() {
         });
 
         const data = await response.json();
-        
-        if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+
+        if (data.error) {
+            alert("Google Error: " + data.error.message);
+        } else if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
             const base64Audio = data.candidates[0].content.parts[0].inlineData.data;
             const audioUrl = createWavUrl(base64Audio);
             const audio = new Audio(audioUrl);
             audio.play();
             button.innerText = "✅ Play Again";
-        } else {
-            throw new Error("API error");
         }
-
     } catch (error) {
-        console.error("Error:", error);
-        alert("Galti hui! Shayad Key bekar ho gayi hai.");
-        button.innerText = "❌ Error! Try Again";
+        alert("Network Error: Internet connection check karein.");
     } finally {
         button.disabled = false;
-        setTimeout(() => {
-            button.innerText = "VoxAI Frank (Premium)";
-        }, 3000);
+        setTimeout(() => { button.innerText = "VoxAI Frank (Premium)"; }, 3000);
     }
 }
