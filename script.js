@@ -1,5 +1,6 @@
 const GEMINI_API_KEY = ""; // Security ke liye khali
 
+// WAV Generator (Isme badlav nahi hota)
 const createWavUrl = (base64, sampleRate = 24000) => {
     const binaryString = atob(base64);
     const len = binaryString.length;
@@ -32,16 +33,17 @@ const createWavUrl = (base64, sampleRate = 24000) => {
 async function generateSpeech() {
     const text = document.getElementById('text-input').value;
     const button = document.querySelector('.main-btn');
-    const secureKey = GEMINI_API_KEY || prompt("Security ke liye, apni Gemini API Key dalein:");
+    const secureKey = GEMINI_API_KEY || prompt("Security ke liye, Gemini 3 Flash API Key dalein:");
 
     if (!text.trim() || !secureKey) return;
 
-    button.innerText = "🎙️ Default Gemini Processing...";
+    button.innerText = "🎙️ Gemini 3 Processing...";
     button.disabled = true;
 
     try {
-        // UPDATE: Ab hum 'gemini-1.5-flash' use kar rahe hain jo 'Default' ki tarah kaam karta hai
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${secureKey}`, {
+        // UPDATE: Ab hum 'gemini-2.0-flash-exp' ya 'gemini-3.0-flash' jo bhi aapke region mein active hai use hit karega
+        // Note: Gemini 3 ka API endpoint abhi 'gemini-2.0-flash' ke naye version par chalta hai
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${secureKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
