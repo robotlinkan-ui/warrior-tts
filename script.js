@@ -1,19 +1,14 @@
-const GEMINI_API_KEY = ""; // Security ke liye khali chhoda hai
+const GEMINI_API_KEY = ""; // Security ke liye khali
 
-// WAV Generator (Isme koi badlav nahi hai)
 const createWavUrl = (base64, sampleRate = 24000) => {
     const binaryString = atob(base64);
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
+    for (let i = 0; i < len; i++) { bytes[i] = binaryString.charCodeAt(i); }
     const buffer = new ArrayBuffer(44 + bytes.length);
     const view = new DataView(buffer);
     const writeString = (offset, string) => {
-        for (let i = 0; i < string.length; i++) {
-            view.setUint8(offset + i, string.charCodeAt(i));
-        }
+        for (let i = 0; i < string.length; i++) { view.setUint8(offset + i, string.charCodeAt(i)); }
     };
     writeString(0, 'RIFF');
     view.setUint32(4, 36 + bytes.length, true);
@@ -37,16 +32,16 @@ const createWavUrl = (base64, sampleRate = 24000) => {
 async function generateSpeech() {
     const text = document.getElementById('text-input').value;
     const button = document.querySelector('.main-btn');
-    const secureKey = GEMINI_API_KEY || prompt("Security ke liye, apni Gemini 3.1 Pro API Key dalein:");
+    const secureKey = GEMINI_API_KEY || prompt("Security ke liye, apni Gemini API Key dalein:");
 
     if (!text.trim() || !secureKey) return;
 
-    button.innerText = "🎙️ VoxAI Pro Processing...";
+    button.innerText = "🎙️ Default Gemini Processing...";
     button.disabled = true;
 
     try {
-        // UPDATE: Ab hum 1.5-Pro engine use kar rahe hain (Latest 3.1 Preview)
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${secureKey}`, {
+        // UPDATE: Ab hum 'gemini-1.5-flash' use kar rahe hain jo 'Default' ki tarah kaam karta hai
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${secureKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -72,7 +67,7 @@ async function generateSpeech() {
             button.innerText = "✅ Play Again";
         }
     } catch (error) {
-        alert("Network Error: Internet connection check karein.");
+        alert("Network Error: Connection check karein.");
     } finally {
         button.disabled = false;
         setTimeout(() => { button.innerText = "VoxAI Frank (Premium)"; }, 3000);
