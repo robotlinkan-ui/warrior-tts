@@ -1,4 +1,6 @@
-const GEMINI_API_KEY = "AIzaSyD7z5UahtNO_-ZgndFkO-ZQj3j2QwYaAKI";
+// Vox AI Studio - SECURE VERSION
+// Humne yahan se key hata di hai taaki Google warning na de.
+const GEMINI_API_KEY = ""; // Ise khali hi rehne dein
 
 const createWavUrl = (base64, sampleRate = 24000) => {
     const binaryString = atob(base64);
@@ -38,8 +40,15 @@ async function generateSpeech() {
     const text = textInput.value;
     const button = document.querySelector('.main-btn');
     
+    // YAHAN DHAYAN DEIN: Hum key ko Netlify se mangwayenge ya manual input se
+    const secureKey = GEMINI_API_KEY || prompt("Security ke liye, apni nayi Gemini API Key yahan dalein:");
+
     if (!text.trim()) {
         alert("Sachin bhai, pehle script toh likhiye!");
+        return;
+    }
+    if (!secureKey) {
+        alert("API Key ke bina awaaz nahi ban sakti!");
         return;
     }
 
@@ -47,7 +56,7 @@ async function generateSpeech() {
     button.disabled = true;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${secureKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -70,12 +79,12 @@ async function generateSpeech() {
             audio.play();
             button.innerText = "✅ Play Again";
         } else {
-            throw new Error("API response error");
+            throw new Error("API error");
         }
 
     } catch (error) {
         console.error("Error:", error);
-        alert("Oops! Kuch gadbad hui.");
+        alert("Galti hui! Shayad Key bekar ho gayi hai.");
         button.innerText = "❌ Error! Try Again";
     } finally {
         button.disabled = false;
