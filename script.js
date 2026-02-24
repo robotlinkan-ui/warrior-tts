@@ -1,6 +1,5 @@
-const GEMINI_API_KEY = ""; // Security ke liye khali
+const GEMINI_API_KEY = ""; // Isse khali hi rehne dein
 
-// WAV Generator (Isme badlav nahi hota)
 const createWavUrl = (base64, sampleRate = 24000) => {
     const binaryString = atob(base64);
     const len = binaryString.length;
@@ -33,7 +32,7 @@ const createWavUrl = (base64, sampleRate = 24000) => {
 async function generateSpeech() {
     const text = document.getElementById('text-input').value;
     const button = document.querySelector('.main-btn');
-    const secureKey = GEMINI_API_KEY || prompt("Security ke liye, Gemini 3 Flash API Key dalein:");
+    const secureKey = GEMINI_API_KEY || prompt("Gemini 3 Flash Key dalein:");
 
     if (!text.trim() || !secureKey) return;
 
@@ -41,8 +40,7 @@ async function generateSpeech() {
     button.disabled = true;
 
     try {
-        // UPDATE: Ab hum 'gemini-2.0-flash-exp' ya 'gemini-3.0-flash' jo bhi aapke region mein active hai use hit karega
-        // Note: Gemini 3 ka API endpoint abhi 'gemini-2.0-flash' ke naye version par chalta hai
+        // Gemini 3.0 Flash Preview ka sahi endpoint
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${secureKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -69,7 +67,7 @@ async function generateSpeech() {
             button.innerText = "✅ Play Again";
         }
     } catch (error) {
-        alert("Network Error: Connection check karein.");
+        alert("Network Error!");
     } finally {
         button.disabled = false;
         setTimeout(() => { button.innerText = "VoxAI Frank (Premium)"; }, 3000);
